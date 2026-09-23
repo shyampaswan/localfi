@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LocalFix — Make your neighborhood better</title>
+  <style>
+    :root {
+      --ink: #17221b;
+      --muted: #6d786f;
+      --paper: #f8f8f3;
+      --card: #ffffff;
+      --line: #e4e8df;
+      --green: #2d704c;
+      --green-dark: #1f5538;
+      --mint: #dcefe1;
+      --yellow: #f5c85b;
+      --red: #d85c4c;
+      --shadow: 0 14px 35px rgba(29, 58, 40, .08);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--paper); }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; border: 0; }
+    .shell { max-width: 1180px; margin: 0 auto; padding: 24px 24px 44px; }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+    .brand { display: flex; align-items: center; gap: 11px; font-weight: 800; letter-spacing: -.04em; font-size: 21px; }
+    .brand-mark { width: 35px; height: 35px; display: grid; place-items: center; border-radius: 12px; background: var(--green); color: white; font-size: 19px; box-shadow: 0 6px 14px rgba(45,112,76,.2); }
+    .profile { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; }
+    .avatar { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; background: #d7e6d7; color: var(--green-dark); font-weight: 800; }
+    .hero { display: grid; grid-template-columns: 1.12fr .88fr; gap: 26px; margin: 48px 0 27px; align-items: end; }
+    .eyebrow { color: var(--green); text-transform: uppercase; font-size: 11px; font-weight: 800; letter-spacing: .15em; margin-bottom: 13px; }
+    h1 { max-width: 600px; font-size: clamp(38px, 5vw, 65px); line-height: .98; letter-spacing: -.065em; margin: 0; }
+    .hero-copy { max-width: 490px; color: var(--muted); line-height: 1.55; font-size: 15px; margin: 18px 0 0; }
+    .hero-side { background: #e9f2e5; border-radius: 25px; padding: 21px 22px; position: relative; overflow: hidden; min-height: 146px; }
+    .hero-side:after { content: "✦"; position: absolute; right: 25px; bottom: -17px; color: #cce2ca; font-size: 117px; line-height: 1; }
+    .hero-side strong { display: block; font-size: 16px; margin-bottom: 9px; position: relative; z-index: 1; }
+    .hero-side p { color: #55705e; font-size: 13px; line-height: 1.5; max-width: 265px; margin: 0; position: relative; z-index: 1; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 26px; }
+    .stat { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 17px 18px; box-shadow: 0 5px 17px rgba(29,58,40,.025); }
+    .stat .number { font-size: 26px; font-weight: 800; letter-spacing: -.05em; }
+    .stat .label { color: var(--muted); font-size: 12px; margin-top: 4px; }
+    .main-grid { display: grid; grid-template-columns: 1.35fr .65fr; gap: 21px; }
+    .panel { background: var(--card); border: 1px solid var(--line); border-radius: 21px; box-shadow: var(--shadow); }
+    .panel-head { display: flex; justify-content: space-between; align-items: center; padding: 21px 22px 16px; gap: 12px; }
+    .panel-title { font-size: 18px; font-weight: 800; letter-spacing: -.035em; }
+    .panel-subtitle { color: var(--muted); font-size: 12px; margin-top: 4px; }
+    .report-btn { background: var(--green); color: #fff; padding: 11px 15px; border-radius: 11px; font-weight: 750; font-size: 13px; white-space: nowrap; box-shadow: 0 7px 14px rgba(45,112,76,.18); }
+    .report-btn:hover { background: var(--green-dark); }
+    .controls { display: flex; gap: 8px; padding: 0 22px 15px; }
+    .search { flex: 1; position: relative; }
+    .search span { position: absolute; left: 12px; top: 9px; color: #8e9990; }
+    input, select, textarea { border: 1px solid var(--line); border-radius: 10px; color: var(--ink); background: #fbfcfa; outline: 0; }
+    input:focus, select:focus, textarea:focus { border-color: #83af8f; box-shadow: 0 0 0 3px #e2f0e3; }
+    .search input { width: 100%; padding: 10px 12px 10px 35px; font-size: 13px; }
+    select { padding: 10px 31px 10px 11px; font-size: 13px; }
+    .issue-list { border-top: 1px solid var(--line); }
+    .issue { padding: 17px 22px; display: grid; grid-template-columns: 50px 1fr auto; gap: 13px; align-items: center; border-bottom: 1px solid #eef0eb; transition: background .15s; }
+    .issue:last-child { border-bottom: 0; }
+    .issue:hover { background: #fbfdf9; }
+    .issue-icon { width: 50px; height: 50px; display: grid; place-items: center; border-radius: 14px; font-size: 22px; background: #f0eee5; }
+    .issue-icon.red { background: #fae4df; }
+    .issue-icon.blue { background: #e4edf5; }
+    .issue-icon.yellow { background: #fff1cf; }
+    .issue-name { font-weight: 750; font-size: 14px; }
+    .issue-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; color: var(--muted); font-size: 11px; margin-top: 7px; }
+    .dot { width: 3px; height: 3px; border-radius: 50%; background: #a9b2aa; }
+    .status { padding: 6px 9px; border-radius: 8px; font-size: 10px; font-weight: 800; white-space: nowrap; }
+    .status.open { color: #9a6818; background: #fff2d0; }
+    .status.progress { color: #326c8e; background: #e2f0f8; }
+    .status.fixed { color: #32704b; background: #ddf1e1; }
+    .votes { text-align: center; min-width: 34px; color: var(--muted); font-size: 11px; }
+    .vote-btn { width: 32px; height: 25px; display: block; margin: 0 auto 4px; background: #edf3ec; color: var(--green); border-radius: 7px; font-weight: 900; }
+    .vote-btn.voted { background: var(--green); color: white; }
+    .map-panel { min-height: 100%; overflow: hidden; }
+    .map { margin: 0 16px 18px; height: 284px; border-radius: 16px; position: relative; overflow: hidden; background: #edf1e8; background-image: linear-gradient(35deg, transparent 43%, #fff 44%, #fff 47%, transparent 48%), linear-gradient(115deg, transparent 45%, #fff 46%, #fff 49%, transparent 50%), linear-gradient(8deg, transparent 49%, #d6e1d1 50%, transparent 51%); background-size: 112px 90px, 136px 113px, 100% 73px; }
+    .map:before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 24% 27%, rgba(141,181,129,.33) 0 16px, transparent 17px), radial-gradient(circle at 68% 71%, rgba(141,181,129,.29) 0 28px, transparent 29px), linear-gradient(165deg, transparent 48%, rgba(205,219,199,.8) 49% 53%, transparent 54%); }
+    .map-label { position: absolute; color: #869383; font-size: 10px; font-weight: 700; }
+    .pin { position: absolute; width: 27px; height: 27px; display: grid; place-items: center; border: 3px solid white; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 4px 9px rgba(42,64,43,.24); background: var(--red); color: white; font-size: 12px; }
+    .pin span { transform: rotate(45deg); }
+    .pin.green { background: var(--green); }
+    .pin.yellow { background: var(--yellow); color: #71561b; }
+    .legend { display: flex; gap: 15px; padding: 0 22px 21px; color: var(--muted); font-size: 11px; }
+    .legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+    .empty { padding: 32px 22px; color: var(--muted); text-align: center; font-size: 13px; }
+    .modal-wrap { display: none; position: fixed; inset: 0; z-index: 10; background: rgba(23,34,27,.42); padding: 20px; align-items: center; justify-content: center; }
+    .modal-wrap.open { display: flex; }
+    .modal { width: min(470px, 100%); background: white; border-radius: 20px; padding: 24px; box-shadow: 0 25px 70px rgba(13,26,18,.25); }
+    .modal-top { display: flex; justify-content: space-between; align-items: start; margin-bottom: 18px; }
+    .modal h2 { margin: 0; font-size: 22px; letter-spacing: -.04em; }
+    .close { background: #f1f4ef; border-radius: 8px; width: 31px; height: 31px; color: var(--muted); font-size: 19px; }
+    label { display: block; color: #536157; font-size: 12px; font-weight: 700; margin: 13px 0 6px; }
+    .modal input, .modal select, .modal textarea { width: 100%; padding: 11px; font-size: 13px; }
+    .modal textarea { min-height: 80px; resize: vertical; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+    .submit { width: 100%; margin-top: 19px; padding: 12px; border-radius: 10px; background: var(--green); color: white; font-weight: 800; }
+    .toast { display: none; position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); z-index: 20; background: #203b2a; color: white; border-radius: 10px; padding: 12px 16px; font-size: 13px; box-shadow: var(--shadow); }
+    .toast.show { display: block; animation: fade 3s both; }
+    @keyframes fade { 0%, 80% { opacity: 1; } 100% { opacity: 0; } }
+    @media (max-width: 800px) { .hero, .main-grid { grid-template-columns: 1fr; } .hero { margin-top: 34px; } .hero-side { min-height: 120px; } }
+    @media (max-width: 490px) { .shell { padding: 18px 14px 34px; } .profile span { display: none; } .stats { gap: 7px; } .stat { padding: 13px 12px; } .stat .number { font-size: 21px; } .controls { padding-left: 14px; padding-right: 14px; } .issue { padding: 15px 14px; grid-template-columns: 43px 1fr auto; gap: 10px; } .issue-icon { width: 43px; height: 43px; font-size: 19px; } .panel-head { padding-left: 14px; padding-right: 14px; } .status { font-size: 9px; } .issue-name { font-size: 13px; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="brand"><div class="brand-mark">⌁</div> LocalFix</div>
+      <div class="profile"><span>Welcome back, Shyam Paswan</span><div class="avatar">S</div></div>
+    </header>
+
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Better streets start here</div>
+        <h1>Make your neighborhood better, together.</h1>
+        <p class="hero-copy">Spot a problem? Report it in seconds, rally your neighbors, and follow it all the way to fixed.</p>
+      </div>
+      <div class="hero-side">
+        <strong>Small reports. Real change.</strong>
+        <p>When neighbors speak up together, local teams know what needs attention first.</p>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="stat"><div class="number" id="total-count">24</div><div class="label">Issues reported</div></div>
+      <div class="stat"><div class="number">11</div><div class="label">Fixed this month</div></div>
+      <div class="stat"><div class="number">86%</div><div class="label">Community response</div></div>
+    </section>
+
+    <main class="main-grid">
+      <section class="panel">
+        <div class="panel-head">
+          <div><div class="panel-title">Community reports</div><div class="panel-subtitle">Demo reports · replace with real neighborhood issues</div></div>
+          <button class="report-btn" id="open-report">+ Report issue</button>
+        </div>
+        <div class="controls">
+          <div class="search"><span>⌕</span><input id="search" type="search" placeholder="Search reports..." /></div>
+          <select id="filter" aria-label="Filter reports">
+            <option value="all">All issues</option>
+            <option value="open">Open</option>
+            <option value="progress">In progress</option>
+            <option value="fixed">Fixed</option>
+          </select>
+        </div>
+        <div class="issue-list" id="issue-list"></div>
+      </section>
+
+      <aside class="panel map-panel">
+        <div class="panel-head"><div><div class="panel-title">Issue map</div><div class="panel-subtitle">Riverside neighborhood</div></div></div>
+        <div class="map" aria-label="Illustrated issue map">
+          <span class="map-label" style="left: 14%; top: 16%">Oak Street</span>
+          <span class="map-label" style="right: 12%; top: 42%">Riverside Ave</span>
+          <span class="map-label" style="left: 29%; bottom: 15%">Market Lane</span>
+          <div class="pin" style="left: 24%; top: 32%"><span>!</span></div>
+          <div class="pin yellow" style="left: 63%; top: 21%"><span>!</span></div>
+          <div class="pin green" style="left: 69%; top: 65%"><span>✓</span></div>
+          <div class="pin" style="left: 38%; top: 69%"><span>!</span></div>
+        </div>
+        <div class="legend"><span><i style="background:#d85c4c"></i>Needs attention</span><span><i style="background:#f5c85b"></i>In progress</span><span><i style="background:#2d704c"></i>Fixed</span></div>
+      </aside>
+    </main>
+  </div>
+
+  <div class="modal-wrap" id="modal">
+    <form class="modal" id="report-form">
+      <div class="modal-top"><div><h2>Report an issue</h2><div class="panel-subtitle">Help your neighbors see what needs fixing.</div></div><button type="button" class="close" id="close-modal">×</button></div>
+      <label for="title">What needs attention?</label>
+      <input id="title" required placeholder="e.g. Broken streetlight on Oak Street" />
+      <label for="description">A little more detail</label>
+      <textarea id="description" placeholder="Add useful context for neighbors and local teams..."></textarea>
+      <div class="form-row">
+        <div><label for="category">Category</label><select id="category"><option value="🛠️">Street &amp; sidewalks</option><option value="💧">Water &amp; drainage</option><option value="💡">Lighting</option><option value="🌳">Parks &amp; greenery</option></select></div>
+        <div><label for="location">Location</label><input id="location" required placeholder="Street or landmark" /></div>
+      </div>
+      <button class="submit" type="submit">Publish report</button>
+    </form>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const starterIssues = [
+      { title: "Pothole near the school crossing", location: "Oak Street", age: "2 hours ago", votes: 18, status: "open", icon: "🚧", tone: "red" },
+      { title: "Streetlight flickering at the bus stop", location: "Riverside Avenue", age: "Yesterday", votes: 12, status: "progress", icon: "💡", tone: "yellow" },
+      { title: "Overflowing bin by the park entrance", location: "Maple Park", age: "2 days ago", votes: 9, status: "open", icon: "🗑️", tone: "blue" },
+      { title: "Playground swing has been repaired", location: "Maple Park", age: "4 days ago", votes: 24, status: "fixed", icon: "🌳", tone: "green" }
+    ];
+    const savedIssues = localStorage.getItem("localfix-issues");
+    let issues = savedIssues ? JSON.parse(savedIssues) : starterIssues.map(issue => ({ ...issue }));
+    const labels = { open: "Needs attention", progress: "In progress", fixed: "Fixed" };
+    const list = document.getElementById("issue-list");
+    function saveIssues() { localStorage.setItem("localfix-issues", JSON.stringify(issues)); }
+    function render() {
+      const query = document.getElementById("search").value.toLowerCase();
+      const filter = document.getElementById("filter").value;
+      const visible = issues.filter(i => (filter === "all" || i.status === filter) && (i.title + i.location).toLowerCase().includes(query));
+      list.innerHTML = visible.length ? visible.map((issue, index) => `
+        <article class="issue">
+          <div class="issue-icon ${issue.tone}">${issue.icon}</div>
+          <div>
+            <div class="issue-name">${escapeHtml(issue.title)}</div>
+            <div class="issue-meta"><span>${escapeHtml(issue.location)}</span><span class="dot"></span><span>${issue.age}</span><span class="status ${issue.status}">${labels[issue.status]}</span></div>
+          </div>
+          <div class="votes"><button class="vote-btn ${issue.voted ? "voted" : ""}" data-vote="${issues.indexOf(issue)}">↑</button><span>${issue.votes}</span></div>
+        </article>`).join("") : '<div class="empty">No reports match that search.</div>';
+      document.querySelectorAll("[data-vote]").forEach(btn => btn.addEventListener("click", () => {
+        const issue = issues[Number(btn.dataset.vote)];
+        if (!issue.voted) { issue.voted = true; issue.votes++; saveIssues(); showToast("Thanks — your support was added."); render(); }
+      }));
+    }
+    function escapeHtml(value) { return value.replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[c])); }
+    function showToast(message) { const toast = document.getElementById("toast"); toast.textContent = message; toast.classList.remove("show"); void toast.offsetWidth; toast.classList.add("show"); }
+    document.getElementById("search").addEventListener("input", render);
+    document.getElementById("filter").addEventListener("change", render);
+    const modal = document.getElementById("modal");
+    document.getElementById("open-report").addEventListener("click", () => modal.classList.add("open"));
+    document.getElementById("close-modal").addEventListener("click", () => modal.classList.remove("open"));
+    modal.addEventListener("click", e => { if (e.target === modal) modal.classList.remove("open"); });
+    document.getElementById("report-form").addEventListener("submit", e => {
+      e.preventDefault();
+      const category = document.getElementById("category").value;
+      issues.unshift({ title: document.getElementById("title").value, location: document.getElementById("location").value, age: "Just now", votes: 1, status: "open", icon: category, tone: "red" });
+      saveIssues();
+      document.getElementById("total-count").textContent = 24 + issues.length - starterIssues.length;
+      e.target.reset(); modal.classList.remove("open"); render(); showToast("Your report is now visible to the community.");
+    });
+    render();
+  </script>
+</body>
+</html>
